@@ -23,7 +23,7 @@ defmodule Typeid.MixProject do
   defp package do
     [
       maintainers: ["Danilo Cabello"],
-      licenses: ["MIT"],
+      licenses: ["Apache 2"],
       links: %{"GitHub" => "https://github.com/cabello/elixir-typeid"}
     ]
   end
