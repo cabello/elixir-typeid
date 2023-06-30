@@ -42,7 +42,7 @@ defmodule Typeid do
   ## Examples
 
       iex> Typeid.encode("user", "01889c89-df6b-7f1c-a388-91396ec314bc")
-      {:ok, "user_0649s2ezddzhs8w8j4wpxgrmqg"}
+      {:ok, "user_01h2e8kqvbfwea724h75qc655w"}
 
       iex> Typeid.encode("user", "0649s2ezddzhs8w8j4wpxgrmqg")
       {:ok, "user_0649s2ezddzhs8w8j4wpxgrmqg"}
@@ -82,9 +82,11 @@ defmodule Typeid do
       true ->
         eid =
           uuid
-          |> Uniq.UUID.to_string(:raw)
+          |> Uniq.UUID.to_string(:hex)
+          |> String.to_integer(16)
           |> CrockfordBase32.encode()
           |> String.downcase()
+          |> String.pad_leading(26, "0")
 
         {:ok, join(type, eid)}
     end

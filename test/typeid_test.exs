@@ -7,7 +7,7 @@ defmodule TypeidTest do
 
     assert String.length(result) == 31
     assert String.starts_with?(result, "user_")
-    {:ok, _} = CrockfordBase32.decode_to_binary(String.slice(result, 5..-1))
+    {:ok, _} = CrockfordBase32.decode_to_integer(String.slice(result, 5..-1))
   end
 
   describe "spec" do
@@ -26,7 +26,7 @@ defmodule TypeidTest do
         uuid: "00000000-0000-0000-0000-000000000001"
       }
 
-      assert Typeid.encode(t) == {:ok, "0000000000000000000000000a"}
+      assert Typeid.encode(t) == {:ok, "00000000000000000000000001"}
     end
 
     test "ten" do
