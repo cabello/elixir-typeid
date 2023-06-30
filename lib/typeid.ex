@@ -1,5 +1,5 @@
 defmodule Typeid do
-  defstruct prefix: nil, suffix: nil, uuid: nil
+  defstruct type: nil, uuid: nil
 
   @moduledoc ~S"""
   Documentation for `Typeid`.
@@ -12,22 +12,20 @@ defmodule Typeid do
 
       iex> Typeid.decode("user_01h2e8kqvbfwea724h75qc655w")
       {:ok, %Typeid{
-        prefix: "user",
-        suffix: "01h2e8kqvbfwea724h75qc655w",
+        type: "user",
         uuid: "00622722-77da-dfc7-28e2-244e5bb0c52f"}}
 
       iex> Typeid.decode("user_01h2e8kqvbfwea724h75qc655o")
       {:error, "Invalid base 32 encoded ID"}
   """
   def decode(typeid) do
-    {prefix, suffix} = typeid |> String.split("_") |> List.to_tuple()
+    {type, encoded_id} = typeid |> String.split("_") |> List.to_tuple()
 
-    case CrockfordBase32.decode_to_binary(suffix) do
+    case CrockfordBase32.decode_to_binary(encoded_id) do
       {:ok, binary_uuid} ->
         {:ok,
          %Typeid{
-           prefix: prefix,
-           suffix: suffix,
+           type: type,
            uuid: binary_uuid |> Uniq.UUID.to_string()
          }}
 
@@ -48,18 +46,14 @@ defmodule Typeid do
       {:ok, "user_0649s2ezddzhs8w8j4wpxgrmqg"}
 
       iex> Typeid.encode("User", "0649s2ezddzhs8w8j4wpxgrmqg")
-      {:error, "Invalid type. Must be lowercase ascii letters [0-9a-z]*"}
+      {:error, "The prefix should be lowercase with no uppercase letters"}
 
       iex> Typeid.encode("User", "0649s2ezddzhs8w8j4wpxgrmqg")
-      {:error, "Invalid type. Must be lowercase ascii letters [0-9a-z]*"}
+      {:error, "The prefix should be lowercase with no uppercase letters"}
 
       iex> Typeid.encode("user", "invalid")
       {:error, "Invalid length. ID should have 26 characters, got 7"}
   """
-  def encode(typeid = %Typeid{}) do
-    encode(typeid.prefix, typeid.uuid)
-  end
-
   def encode(type) do
     encode(type, Uniq.UUID.uuid7())
   end
@@ -67,7 +61,10 @@ defmodule Typeid do
   def encode(type, base32id) when byte_size(base32id) == 26 do
     cond do
       String.downcase(type) != type ->
-        {:error, "Invalid type. Must be lowercase ascii letters [0-9a-z]*"}
+        {:error, "The prefix should be lowercase with no uppercase letters"}
+
+      Regex.match?(~r/[0-9]+/, type) ->
+        {:error, "The prefix can't have numbers, it needs to be alphabetic"}
 
       true ->
         {:ok, join(type, base32id)}
@@ -77,7 +74,10 @@ defmodule Typeid do
   def encode(type, uuid) when byte_size(uuid) == 36 do
     cond do
       String.downcase(type) != type ->
-        {:error, "Invalid type. Must be lowercase ascii letters [0-9a-f]*"}
+        {:error, "The prefix should be lowercase with no uppercase letters"}
+
+      Regex.match?(~r/[0-9]+/, type) ->
+        {:error, "The prefix can't have numbers, it needs to be alphabetic"}
 
       true ->
         eid =
