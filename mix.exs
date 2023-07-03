@@ -4,7 +4,7 @@ defmodule Typeid.MixProject do
   def project do
     [
       app: :typeid,
-      version: "0.1.0",
+      version: "0.2.0",
       elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -23,7 +23,7 @@ defmodule Typeid.MixProject do
   defp package do
     [
       maintainers: ["Danilo Cabello"],
-      licenses: ["Apache 2"],
+      licenses: ["Apache-2.0"],
       links: %{"GitHub" => "https://github.com/cabello/elixir-typeid"}
     ]
   end
